@@ -1,35 +1,81 @@
 "use client";
-import React, { useState } from "react";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: "Admin" | "Customer" | "Manager";
-  status: "Active" | "Inactive";
-}
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { UserProfile } from "@/lib/supabase";
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([
-    { id: 1, name: "Alice Johnson", email: "alice@example.com", role: "Admin", status: "Active" },
-    { id: 2, name: "Bob Smith", email: "bob@example.com", role: "Customer", status: "Inactive" },
-    { id: 3, name: "Carol Lee", email: "carol@example.com", role: "Manager", status: "Active" },
-  ]);
-
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter(u => u.id !== id));
+  // Fetch users from Supabase
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await fetchUsers();
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user: ' + error.message);
+    }
+  };
+
+  const handleRoleChange = async (id: string, newRole: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ role: newRole })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await fetchUsers();
+    } catch (error: any) {
+      console.error('Error updating role:', error);
+      alert('Failed to update role: ' + error.message);
     }
   };
 
   const filteredUsers = users.filter(
     u =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
+      (u.full_name?.toLowerCase().includes(search.toLowerCase()) || false) ||
       u.role.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-8">Loading users...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -49,26 +95,32 @@ export default function UsersPage() {
           <thead>
             <tr className="text-left border-b dark:border-gray-700">
               <th className="p-2">Name</th>
-              <th className="p-2">Email</th>
               <th className="p-2">Role</th>
-              <th className="p-2">Status</th>
+              <th className="p-2">Phone</th>
+              <th className="p-2">Created</th>
               <th className="p-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredUsers.map(user => (
               <tr key={user.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/30 dark:border-gray-700">
-                <td className="p-2 font-medium text-gray-800 dark:text-gray-100">{user.name}</td>
-                <td className="p-2 text-gray-600 dark:text-gray-400">{user.email}</td>
-                <td className="p-2 text-gray-600 dark:text-gray-400">{user.role}</td>
+                <td className="p-2 font-medium text-gray-800 dark:text-gray-100">
+                  {user.full_name || 'N/A'}
+                </td>
                 <td className="p-2">
-                  <span className={`px-2 py-1 text-xs rounded-lg font-medium ${
-                    user.status === "Active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}>
-                    {user.status}
-                  </span>
+                  <select
+                    value={user.role}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                    className="px-2 py-1 text-xs rounded-lg border dark:bg-gray-800 dark:border-gray-600"
+                  >
+                    <option value="customer">Customer</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </td>
+                <td className="p-2 text-gray-600 dark:text-gray-400">{user.phone || 'N/A'}</td>
+                <td className="p-2 text-gray-600 dark:text-gray-400">
+                  {new Date(user.created_at).toLocaleDateString()}
                 </td>
                 <td className="p-2 text-right space-x-2">
                   <button
@@ -76,12 +128,6 @@ export default function UsersPage() {
                     onClick={() => handleDelete(user.id)}
                   >
                     Delete
-                  </button>
-                  <button
-                    className="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
-                    // future: handle edit
-                  >
-                    Edit
                   </button>
                 </td>
               </tr>

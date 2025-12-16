@@ -24,7 +24,7 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
   fullWidth = false,
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-body font-normal uppercase transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex items-center justify-center font-body font-normal uppercase transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none';
   
   const variantStyles = {
     primary: 'bg-rare-primary text-white hover:bg-rare-secondary',

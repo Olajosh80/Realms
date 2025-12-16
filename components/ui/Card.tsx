@@ -17,7 +17,7 @@ export const Card: React.FC<CardProps> = ({
   href,
 }) => {
   const baseStyles = 'bg-white rounded-lg overflow-hidden shadow-md border border-rare-border/10';
-  const hoverStyles = hover ? 'transition-all duration-300 hover:shadow-2xl hover:-translate-y-2' : '';
+  const hoverStyles = hover ? 'transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]' : '';
 
   const paddingStyles = {
     none: '',

@@ -6,12 +6,12 @@ export default function GoodsTable({
   onDelete,
 }: {
   goods: any[];
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }) {
   return (
     <div className="p-6 bg-white border rounded-2xl shadow-sm dark:bg-gray-900 dark:border-gray-700">
       <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white">
-        Current Goods
+        Current Products
       </h2>
 
       <div className="overflow-x-auto">
@@ -22,10 +22,7 @@ export default function GoodsTable({
               <th className="p-2">Name</th>
               <th className="p-2">Category</th>
               <th className="p-2">Price</th>
-              <th className="p-2">Discount</th>
-              <th className="p-2">Stock</th>
               <th className="p-2">Status</th>
-              <th className="p-2">Promo</th>
               <th className="p-2">Tags</th>
               <th className="p-2 text-right">Action</th>
             </tr>
@@ -33,9 +30,15 @@ export default function GoodsTable({
 
           <tbody>
             {goods.map((good) => {
-              const finalPrice = good.discount
-                ? (good.price - good.price * (good.discount / 100)).toFixed(2)
+              const imageUrl = good.images && good.images.length > 0 
+                ? good.images[0] 
+                : good.image || "/placeholder.png";
+              
+              const displayPrice = good.compare_at_price 
+                ? good.compare_at_price 
                 : good.price;
+              
+              const status = good.in_stock ? "In Stock" : "Out of Stock";
 
               return (
                 <tr
@@ -44,7 +47,7 @@ export default function GoodsTable({
                 >
                   <td className="p-2">
                     <img
-                      src={good.image || "/placeholder.png"}
+                      src={imageUrl}
                       alt={good.name}
                       className="object-cover w-12 h-12 rounded"
                     />
@@ -56,29 +59,25 @@ export default function GoodsTable({
                     {good.category}
                   </td>
                   <td className="p-2 text-gray-800 dark:text-gray-300">
-                    ${finalPrice}
-                  </td>
-                  <td className="p-2 text-gray-600 dark:text-gray-400">
-                    {good.discount ? `${good.discount}%` : "-"}
-                  </td>
-                  <td className="p-2 text-gray-800 dark:text-gray-300">
-                    {good.stock || 0}
+                    <div className="flex flex-col">
+                      <span>${parseFloat(good.price).toFixed(2)}</span>
+                      {good.compare_at_price && (
+                        <span className="text-xs text-gray-500 line-through">
+                          ${parseFloat(good.compare_at_price).toFixed(2)}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-2">
                     <span
                       className={`px-2 py-1 text-xs rounded-lg font-medium ${
-                        good.status === "Active"
+                        good.in_stock
                           ? "bg-green-100 text-green-700"
-                          : good.status === "Out of Stock"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-gray-200 text-gray-700"
+                          : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {good.status}
+                      {status}
                     </span>
-                  </td>
-                  <td className="p-2 text-gray-600 dark:text-gray-400">
-                    {good.promoCode || "-"}
                   </td>
                   <td className="p-2 text-gray-600 dark:text-gray-400">
                     {Array.isArray(good.tags)

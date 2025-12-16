@@ -153,26 +153,30 @@ export default function ProductsPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {filteredProducts.map((product) => (
-                  <Card key={product.id} hover padding="none">
+                  <Card key={product.id} hover padding="none" className="relative group cursor-pointer">
                     {/* ✅ Product Image */}
-                    <div className="aspect-square overflow-hidden rounded-t-xl">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
+                    <a href={`/products/${product.id}`} className="block">
+                      <div className="aspect-square overflow-hidden rounded-t-xl">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    </a>
 
                     {/* Product Info */}
-                    <div className="p-6">
+                    <div className="p-6 relative z-10">
                       <div className="mb-2">
                         <span className="text-xs font-body text-rare-text-light uppercase tracking-wide">
                           {product.category}
                         </span>
                       </div>
-                      <h3 className="font-heading text-xl font-normal text-rare-primary mb-2">
-                        {product.name}
-                      </h3>
+                      <a href={`/products/${product.id}`}>
+                        <h3 className="font-heading text-xl font-normal text-rare-primary mb-2 hover:text-rare-secondary transition-colors">
+                          {product.name}
+                        </h3>
+                      </a>
                       <div className="flex items-center gap-2 mb-4">
                         <span className="font-body text-lg font-semibold text-rare-primary">
                           ${product.price}
@@ -183,11 +187,11 @@ export default function ProductsPage() {
                           </span>
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="primary" size="sm" fullWidth>
+                      <div className="flex gap-2 pointer-events-auto">
+                        <Button variant="primary" size="sm" fullWidth onClick={() => console.log('Add to cart:', product.id)}>
                           Add to Cart
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" href={`/products/${product.id}`}>
                           View
                         </Button>
                       </div>

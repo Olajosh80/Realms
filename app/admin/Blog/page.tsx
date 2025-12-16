@@ -1,16 +1,41 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function BlogAdminPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     title: "",
     category: "",
+    excerpt: "",
     content: "",
+    author: "",
     image: "",
     status: "draft",
   });
   const [preview, setPreview] = useState<string>("");
+
+  // Fetch blog posts
+  const fetchBlogs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBlogs(data || []);
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -30,16 +55,60 @@ export default function BlogAdminPage() {
     }
   };
 
-  const handleAddBlog = (e: React.FormEvent) => {
+  const handleAddBlog = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newBlog = { id: Date.now(), ...form };
-    setBlogs([newBlog, ...blogs]);
-    setForm({ title: "", category: "", content: "", image: "", status: "draft" });
-    setPreview("");
+    setLoading(true);
+
+    try {
+      const blogData = {
+        title: form.title,
+        slug: form.title.toLowerCase().replace(/\s+/g, '-'),
+        excerpt: form.excerpt || form.content.substring(0, 150),
+        content: form.content,
+        author: form.author || 'Admin',
+        featured_image: form.image,
+        category: form.category,
+        tags: [],
+        published: form.status === 'published',
+        published_at: form.status === 'published' ? new Date().toISOString() : null,
+      };
+
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .insert([blogData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await fetchBlogs();
+      setForm({ title: "", category: "", excerpt: "", content: "", author: "", image: "", status: "draft" });
+      setPreview("");
+      alert('Blog post added successfully!');
+    } catch (error: any) {
+      console.error('Error adding blog:', error);
+      alert('Failed to add blog post: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteBlog = (id: number) => {
-    setBlogs(blogs.filter((blog) => blog.id !== id));
+  const handleDeleteBlog = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this blog post?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      await fetchBlogs();
+    } catch (error: any) {
+      console.error('Error deleting blog:', error);
+      alert('Failed to delete blog post: ' + error.message);
+    }
   };
 
   return (
@@ -66,6 +135,21 @@ export default function BlogAdminPage() {
             value={form.category}
             onChange={handleChange}
             className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="text"
+            name="author"
+            placeholder="Author Name"
+            value={form.author}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+          <textarea
+            name="excerpt"
+            placeholder="Brief excerpt (optional)..."
+            value={form.excerpt}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-lg h-20"
           />
           <textarea
             name="content"
@@ -121,6 +205,7 @@ export default function BlogAdminPage() {
             <tr className="border-b">
               <th className="p-2">Image</th>
               <th className="p-2">Title</th>
+              <th className="p-2">Author</th>
               <th className="p-2">Category</th>
               <th className="p-2">Status</th>
               <th className="p-2 text-right">Actions</th>
@@ -134,9 +219,9 @@ export default function BlogAdminPage() {
                   className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/30"
                 >
                   <td className="p-2">
-                    {blog.image ? (
+                    {blog.featured_image || blog.image ? (
                       <img
-                        src={blog.image}
+                        src={blog.featured_image || blog.image}
                         alt={blog.title}
                         className="w-16 h-16 object-cover rounded-md"
                       />
@@ -145,8 +230,17 @@ export default function BlogAdminPage() {
                     )}
                   </td>
                   <td className="p-2">{blog.title}</td>
+                  <td className="p-2 text-gray-600 dark:text-gray-400">{blog.author}</td>
                   <td className="p-2">{blog.category}</td>
-                  <td className="p-2 capitalize">{blog.status}</td>
+                  <td className="p-2 capitalize">
+                    <span className={`px-2 py-1 text-xs rounded-lg font-medium ${
+                      blog.published
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}>
+                      {blog.published ? 'Published' : 'Draft'}
+                    </span>
+                  </td>
                   <td className="p-2 text-right">
                     <button
                       onClick={() => handleDeleteBlog(blog.id)}

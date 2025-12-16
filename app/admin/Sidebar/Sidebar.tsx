@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Settings, Users} from "lucide-react";
+import { LayoutDashboard, Package, Settings, Users, ShoppingCart } from "lucide-react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline"
 
 const Sidebar = () => {
@@ -11,10 +11,10 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", href: "/admin", icon: <LayoutDashboard size={18} /> },
     { name: "Manage Goods", href: "/admin/goods", icon: <Package size={18} /> },
+    { name: "Orders", href: "/admin/orders", icon: <ShoppingCart size={18} /> },
     { name: "Users", href: "/admin/users", icon: <Users size={18} /> },
     { name: "Blog", href: "/admin/Blog", icon: <PencilSquareIcon className="w-5 h-5 text-white"/> },
     { name: "Settings", href: "/admin/settings", icon: <Settings size={18} /> },
-    
   ];
 
   return (

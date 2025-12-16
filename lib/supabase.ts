@@ -76,3 +76,50 @@ export interface NewsletterSubscriber {
   created_at: string;
 }
 
+export interface UserProfile {
+  id: string;
+  full_name?: string;
+  role: 'admin' | 'customer' | 'manager';
+  phone?: string;
+  address?: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Order {
+  id: string;
+  user_id?: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  shipping_address: string;
+  total_amount: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+  payment_method?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id?: string;
+  product_name: string;
+  product_price: number;
+  quantity: number;
+  subtotal: number;
+  created_at: string;
+}
+
+export interface SiteSetting {
+  id: string;
+  key: string;
+  value?: string;
+  category?: string;
+  created_at: string;
+  updated_at: string;
+}
+
