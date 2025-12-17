@@ -1,73 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Hero } from '@/components/ui/Hero';
 import { Section } from '@/components/ui/Section';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Loader2 } from 'lucide-react';
 
-// Product data
-const products = [
-  {
-    id: 1,
-    name: 'Designer Leather Bag',
-    category: 'Fashion & Beauty',
-    price: 299.99,
-    compareAtPrice: 399.99,
-    image: '/ProductsImg/fash1.jpg',
-    inStock: true,
-    featured: true,
-  },
-  {
-    id: 2,
-    name: 'Premium Organic Coffee',
-    category: 'Agriculture & Food',
-    price: 24.99,
-    image: '/ProductsImg/agro1.jpg',
-    inStock: true,
-    featured: true,
-  },
-  {
-    id: 3,
-    name: 'Cloud Hosting Package',
-    category: 'Technology',
-    price: 99.99,
-    image: '/ProductsImg/tech1.jpg',
-    inStock: true,
-    featured: false,
-  },
-  {
-    id: 4,
-    name: 'Luxury Skincare Set',
-    category: 'Fashion & Beauty',
-    price: 149.99,
-    compareAtPrice: 199.99,
-    image: '/ProductsImg/fash2.jpg',
-    inStock: true,
-    featured: true,
-  },
-  {
-    id: 5,
-    name: 'Fresh Produce Box',
-    category: 'Agriculture & Food',
-    price: 39.99,
-    image: '/ProductsImg/agro2.jpg',
-    inStock: true,
-    featured: false,
-  },
-  {
-    id: 6,
-    name: 'Business Consulting Package',
-    category: 'Business Consulting',
-    price: 499.99,
-    image: '/ProductsImg/biz1.jpg',
-    inStock: true,
-    featured: true,
-  },
-];
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  price: number;
+  compare_at_price?: number;
+  images: string[];
+  category?: string;
+  division_id?: string;
+  in_stock: boolean;
+  featured: boolean;
+  division?: {
+    name: string;
+    slug: string;
+  };
+}
 
 const categories = [
   'All Products',
@@ -79,12 +37,37 @@ const categories = [
 ];
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('/api/products?in_stock=true');
+      if (!response.ok) throw new Error('Failed to fetch products');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError('Unable to load products right now. Please try again shortly.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
-      selectedCategory === 'All Products' || product.category === selectedCategory;
+      selectedCategory === 'All Products' ||
+      product.division?.name === selectedCategory ||
+      product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -95,12 +78,12 @@ export default function ProductsPage() {
 
       <main>
         {/* Hero Section */}
-        <Hero
+        {/* <Hero
           badge="Products & Services"
           title="Discover Our Offerings"
           description="Explore our diverse range of products and services across all divisions"
           centered
-        />
+        /> */}
 
         {/* Filters Section */}
         <Section background="alt" padding="md">
@@ -144,7 +127,22 @@ export default function ProductsPage() {
         {/* Products Grid */}
         <Section background="gradient-soft" padding="lg" withTexture>
           <div className="container">
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-rare-primary" />
+                <span className="ml-2 text-rare-text-light">Loading products...</span>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="font-body text-lg text-red-600 mb-2">{error}</p>
+                <button
+                  onClick={fetchProducts}
+                  className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-md border border-rare-primary text-rare-primary font-body text-sm hover:bg-rare-primary/5 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-12">
                 <p className="font-body text-lg text-rare-text-light">
                   No products found. Try adjusting your filters.
@@ -154,11 +152,11 @@ export default function ProductsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {filteredProducts.map((product) => (
                   <Card key={product.id} hover padding="none" className="relative group cursor-pointer">
-                    {/* ✅ Product Image */}
-                    <a href={`/products/${product.id}`} className="block">
+                    {/* Product Image */}
+                    <a href={`/products/${product.slug}`} className="block">
                       <div className="aspect-square overflow-hidden rounded-t-xl">
                         <img
-                          src={product.image}
+                          src={product.images?.[0] || '/placeholder-product.jpg'}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -169,21 +167,21 @@ export default function ProductsPage() {
                     <div className="p-6 relative z-10">
                       <div className="mb-2">
                         <span className="text-xs font-body text-rare-text-light uppercase tracking-wide">
-                          {product.category}
+                          {product.division?.name || product.category || 'Product'}
                         </span>
                       </div>
-                      <a href={`/products/${product.id}`}>
+                      <a href={`/products/${product.slug}`}>
                         <h3 className="font-heading text-xl font-normal text-rare-primary mb-2 hover:text-rare-secondary transition-colors">
                           {product.name}
                         </h3>
                       </a>
                       <div className="flex items-center gap-2 mb-4">
                         <span className="font-body text-lg font-semibold text-rare-primary">
-                          ${product.price}
+                          ${product.price.toFixed(2)}
                         </span>
-                        {product.compareAtPrice && (
+                        {product.compare_at_price && (
                           <span className="font-body text-sm text-rare-text-light line-through">
-                            ${product.compareAtPrice}
+                            ${product.compare_at_price.toFixed(2)}
                           </span>
                         )}
                       </div>
@@ -191,7 +189,7 @@ export default function ProductsPage() {
                         <Button variant="primary" size="sm" fullWidth onClick={() => console.log('Add to cart:', product.id)}>
                           Add to Cart
                         </Button>
-                        <Button variant="outline" size="sm" href={`/products/${product.id}`}>
+                        <Button variant="outline" size="sm" href={`/products/${product.slug}`}>
                           View
                         </Button>
                       </div>

@@ -194,6 +194,7 @@ CREATE POLICY "Anyone can submit contact form" ON contact_submissions FOR INSERT
 -- Create policies for newsletter subscribers
 CREATE POLICY "Anyone can subscribe to newsletter" ON newsletter_subscribers FOR INSERT WITH CHECK (true);
 CREATE POLICY "Public can view their subscription" ON newsletter_subscribers FOR SELECT USING (true);
+CREATE POLICY "Anyone can update newsletter subscription" ON newsletter_subscribers FOR UPDATE USING (true);
 
 -- Create policies for user profiles
 CREATE POLICY "Users can view all profiles" ON user_profiles FOR SELECT USING (true);

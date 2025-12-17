@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Hero } from '@/components/ui/Hero';
@@ -8,70 +8,80 @@ import { Section } from '@/components/ui/Section';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Calendar, User, Tag } from 'lucide-react';
+import { Calendar, User, Tag, Loader2 } from 'lucide-react';
+import type { BlogPost } from '@/lib/supabase';
 
-// Mock blog data - in production, this would come from Supabase
-const blogPosts = [
-  {
-    id: 1,
-    title: 'The Future of Sustainable Fashion',
-    excerpt: 'Exploring how sustainable practices are reshaping the fashion industry and what it means for consumers.',
-    author: 'Sarah Johnson',
-    category: 'Fashion & Beauty',
-    tags: ['Fashion', 'Sustainability', 'Trends'],
-    publishedAt: '2024-01-15',
-    featuredImage: '/placeholder-blog.jpg',
-  },
-  {
-    id: 2,
-    title: 'Digital Transformation in Agriculture',
-    excerpt: 'How technology is revolutionizing farming practices and improving crop yields worldwide.',
-    author: 'Michael Chen',
-    category: 'Agriculture & Food',
-    tags: ['Agriculture', 'Technology', 'Innovation'],
-    publishedAt: '2024-01-10',
-    featuredImage: '/placeholder-blog.jpg',
-  },
-  {
-    id: 3,
-    title: 'Cloud Computing Trends for 2024',
-    excerpt: 'The latest developments in cloud technology and what businesses need to know.',
-    author: 'Emily Rodriguez',
-    category: 'Technology',
-    tags: ['Cloud', 'Technology', 'Business'],
-    publishedAt: '2024-01-05',
-    featuredImage: '/placeholder-blog.jpg',
-  },
-  {
-    id: 4,
-    title: 'Global Trade in a Connected World',
-    excerpt: 'Understanding the complexities of international trade and logistics in the modern era.',
-    author: 'David Kim',
-    category: 'Trade & Logistics',
-    tags: ['Trade', 'Logistics', 'Global'],
-    publishedAt: '2023-12-28',
-    featuredImage: '/placeholder-blog.jpg',
-  },
-];
-
-const categories = ['All', 'Fashion & Beauty', 'Agriculture & Food', 'Technology', 'Trade & Logistics', 'Business'];
+type NewsletterStatus = 'idle' | 'loading' | 'success' | 'error';
 
 export default function BlogPage() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [email, setEmail] = useState('');
-  const [subscribeStatus, setSubscribeStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  
-  const filteredPosts = blogPosts.filter((post) => 
-    selectedCategory === 'All' || post.category === selectedCategory
+  const [subscribeStatus, setSubscribeStatus] = useState<NewsletterStatus>('idle');
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch('/api/blog?published=true');
+        if (!res.ok) {
+          throw new Error('Failed to load blog posts');
+        }
+        const data: BlogPost[] = await res.json();
+        // Extra safety: filter published on client as well
+        setPosts(data.filter((post) => post.published));
+      } catch (err) {
+        console.error('Error fetching blog posts:', err);
+        setError('Unable to load blog posts right now. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(posts.map((p) => p.category).filter(Boolean)));
+    return ['All', ...cats];
+  }, [posts]);
+
+  const filteredPosts = posts.filter(
+    (post) => selectedCategory === 'All' || post.category === selectedCategory,
   );
-  
+
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, this would submit to Supabase
-    setSubscribeStatus('success');
-    setEmail('');
+    if (!email) return;
+
+    try {
+      setSubscribeStatus('loading');
+
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Subscription failed');
+      }
+
+      setSubscribeStatus('success');
+      setEmail('');
+    } catch (err) {
+      console.error('Newsletter subscription error:', err);
+      setSubscribeStatus('error');
+    } finally {
+      setTimeout(() => setSubscribeStatus('idle'), 4000);
+    }
   };
-  
+
   return (
     <>
       <Header />
@@ -104,13 +114,23 @@ export default function BlogPage() {
                   required
                   fullWidth
                 />
-                <Button type="submit" variant="primary" className="sm:w-auto whitespace-nowrap">
-                  Subscribe
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="sm:w-auto whitespace-nowrap"
+                  disabled={subscribeStatus === 'loading'}
+                >
+                  {subscribeStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
                 </Button>
               </form>
               {subscribeStatus === 'success' && (
                 <p className="mt-3 text-sm text-green-600">
-                  Thank you for subscribing!
+                  Thank you for subscribing! Please check your inbox for confirmation.
+                </p>
+              )}
+              {subscribeStatus === 'error' && (
+                <p className="mt-3 text-sm text-red-600">
+                  Subscription failed. Please try again.
                 </p>
               )}
             </div>
@@ -137,57 +157,76 @@ export default function BlogPage() {
             </div>
           </div>
         </Section>
-        
+
         {/* Blog Posts Grid */}
         <Section background="gradient-soft" padding="lg" withTexture>
           <div className="container">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {filteredPosts.map((post) => (
-                <Card key={post.id} hover padding="none">
-                  <div className="aspect-video bg-gradient-to-br from-rare-accent/30 to-rare-primary/10 flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-rare-primary/10"></div>
-                    <div className="w-full h-full bg-gradient-to-br from-rare-accent/20 to-rare-primary/5 relative z-10"></div>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs font-body text-rare-text-light uppercase tracking-wide">
-                        {post.category}
-                      </span>
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-rare-primary" />
+                <span className="ml-2 text-rare-text-light">Loading articles...</span>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="font-body text-lg text-red-600 mb-2">{error}</p>
+              </div>
+            ) : filteredPosts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="font-body text-lg text-rare-text-light">
+                  No articles found in this category yet. Please check back soon.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {filteredPosts.map((post) => (
+                  <Card key={post.id} hover padding="none">
+                    <div className="aspect-video bg-gradient-to-br from-rare-accent/30 to-rare-primary/10 flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent to-rare-primary/10"></div>
+                      <div className="w-full h-full bg-gradient-to-br from-rare-accent/20 to-rare-primary/5 relative z-10"></div>
                     </div>
-                    <h3 className="font-heading text-xl md:text-2xl font-normal text-rare-primary mb-3">
-                      {post.title}
-                    </h3>
-                    <p className="font-body text-sm text-rare-text-light mb-4 line-clamp-3">
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-rare-text-light mb-4">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        <span>{post.author}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {post.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-rare-primary-light text-rare-primary text-xs rounded"
-                        >
-                          <Tag className="h-3 w-3" />
-                          {tag}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs font-body text-rare-text-light uppercase tracking-wide">
+                          {post.category}
                         </span>
-                      ))}
+                      </div>
+                      <h3 className="font-heading text-xl md:text-2xl font-normal text-rare-primary mb-3">
+                        {post.title}
+                      </h3>
+                      <p className="font-body text-sm text-rare-text-light mb-4 line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-rare-text-light mb-4">
+                        <div className="flex items-center gap-1">
+                          <User className="h-4 w-4" />
+                          <span>{post.author}</span>
+                        </div>
+                        {post.published_at && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{new Date(post.published_at).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {post.tags?.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center gap-1 px-2 py-1 bg-rare-primary-light text-rare-primary text-xs rounded"
+                          >
+                            <Tag className="h-3 w-3" />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <Button variant="outline" size="sm" fullWidth>
+                        Read More
+                      </Button>
                     </div>
-                    <Button variant="outline" size="sm" fullWidth>
-                      Read More
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </Section>
       </main>
