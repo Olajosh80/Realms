@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Sun, Moon } from "lucide-react"; // dark/light mode icons
+import { MdWbSunny, MdDarkMode } from "react-icons/md";
 
 export default function Topbar() {
   const [darkMode, setDarkMode] = useState(false);
@@ -36,8 +36,9 @@ export default function Topbar() {
         <button
           onClick={toggleDarkMode}
           className="p-2 rounded-full hover:bg-white/20 transition"
+          aria-label="Toggle dark mode"
         >
-          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+          {darkMode ? <MdWbSunny className="w-5 h-5" /> : <MdDarkMode className="w-5 h-5" />}
         </button>
 
         {/* Current time */}

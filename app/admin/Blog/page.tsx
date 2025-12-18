@@ -1,10 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { uploadImage } from "@/lib/storage";
+import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function BlogAdminPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     title: "",
     category: "",
@@ -15,19 +20,23 @@ export default function BlogAdminPage() {
     status: "draft",
   });
   const [preview, setPreview] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
 
   // Fetch blog posts
   const fetchBlogs = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      setError(null);
+      const { data, error: fetchError } = await supabase
         .from('blog_posts')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       setBlogs(data || []);
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
+    } catch (err: any) {
+      console.error('Error fetching blogs:', err);
+      setError(err.message || 'Failed to load blog posts. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -112,11 +121,27 @@ export default function BlogAdminPage() {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-3xl font-bold mb-6">Blog Posts</h2>
+    <div className="p-6 space-y-6">
+      <h2 className="text-3xl font-bold">Blog Posts</h2>
+
+      {/* Error Message */}
+      {error && (
+        <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {success && (
+        <div className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400">
+          <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          <p>{success}</p>
+        </div>
+      )}
 
       {/* Add Blog Form */}
-      <div className="mb-8 p-6 bg-white rounded-xl shadow-md dark:bg-gray-900">
+      <div className="mb-8 p-6 bg-white rounded-xl shadow-md dark:bg-gray-900 border dark:border-gray-700">
         <h3 className="text-xl font-semibold mb-4">Add New Blog Post</h3>
         <form onSubmit={handleAddBlog} className="space-y-4">
           <input
@@ -169,8 +194,15 @@ export default function BlogAdminPage() {
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="w-full p-2 border rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800"
+              disabled={uploading || submitting}
+              className="w-full p-2 border rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             />
+            {uploading && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-blue-600">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Uploading image...</span>
+              </div>
+            )}
             {preview && (
               <img
                 src={preview}
@@ -261,6 +293,7 @@ export default function BlogAdminPage() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

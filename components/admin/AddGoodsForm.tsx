@@ -1,10 +1,14 @@
 "use client";
 import React, { useState } from "react";
+import { uploadImage } from "@/lib/storage";
+import { Loader2 } from "lucide-react";
 
 export default function AddGoodsForm({
   onAddGood,
+  isSubmitting = false,
 }: {
   onAddGood: (good: any) => void;
+  isSubmitting?: boolean;
 }) {
   const [form, setForm] = useState({
     name: "",
@@ -20,6 +24,8 @@ export default function AddGoodsForm({
   });
 
   const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -29,12 +35,29 @@ export default function AddGoodsForm({
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
+    if (!selectedFile) return;
+
+    try {
+      setUploading(true);
+      setUploadError(null);
       setFile(selectedFile);
+
+      // Create preview
       const previewURL = URL.createObjectURL(selectedFile);
       setForm({ ...form, image: previewURL });
+
+      // Upload to Supabase Storage
+      const result = await uploadImage(selectedFile, 'products');
+      setForm({ ...form, image: result.url });
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setUploadError(err.message || 'Failed to upload image');
+      setFile(null);
+      setForm({ ...form, image: '' });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -196,8 +219,18 @@ export default function AddGoodsForm({
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-800"
+            disabled={uploading || isSubmitting}
+            className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
           />
+          {uploading && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-blue-600">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Uploading image...</span>
+            </div>
+          )}
+          {uploadError && (
+            <p className="mt-2 text-sm text-red-600">{uploadError}</p>
+          )}
         </div>
 
         {/* Preview */}
@@ -217,9 +250,20 @@ export default function AddGoodsForm({
         {/* Submit */}
         <button
           type="submit"
-          className="w-full py-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+          disabled={isSubmitting}
+          className="w-full py-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Add Product
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Adding Product...
+            </>
+          ) : (
+            'Add Product'
+          )}
         </button>
       </form>
     </div>

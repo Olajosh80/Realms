@@ -2,19 +2,18 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Settings, Users, ShoppingCart } from "lucide-react";
-import { PencilSquareIcon } from "@heroicons/react/24/outline"
+import { MdDashboard, MdInventory, MdSettings, MdPeople, MdShoppingCart, MdEdit } from "react-icons/md";
 
 const Sidebar = () => {
   const pathname = usePathname();
 
   const menuItems = [
-    { name: "Dashboard", href: "/admin", icon: <LayoutDashboard size={18} /> },
-    { name: "Manage Goods", href: "/admin/goods", icon: <Package size={18} /> },
-    { name: "Orders", href: "/admin/orders", icon: <ShoppingCart size={18} /> },
-    { name: "Users", href: "/admin/users", icon: <Users size={18} /> },
-    { name: "Blog", href: "/admin/Blog", icon: <PencilSquareIcon className="w-5 h-5 text-white"/> },
-    { name: "Settings", href: "/admin/settings", icon: <Settings size={18} /> },
+    { name: "Dashboard", href: "/admin", icon: <MdDashboard className="w-5 h-5" /> },
+    { name: "Manage Goods", href: "/admin/goods", icon: <MdInventory className="w-5 h-5" /> },
+    { name: "Orders", href: "/admin/orders", icon: <MdShoppingCart className="w-5 h-5" /> },
+    { name: "Users", href: "/admin/users", icon: <MdPeople className="w-5 h-5" /> },
+    { name: "Blog", href: "/admin/Blog", icon: <MdEdit className="w-5 h-5"/> },
+    { name: "Settings", href: "/admin/settings", icon: <MdSettings className="w-5 h-5" /> },
   ];
 
   return (

@@ -137,11 +137,11 @@ CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 
 -- Insert default divisions
 INSERT INTO divisions (name, slug, description, icon, "order") VALUES
-  ('Fashion & Beauty', 'fashion-beauty', 'Premium fashion and beauty products including bags, clothing, and accessories', '👗', 1),
-  ('Agriculture & Food', 'agriculture-food', 'Sustainable agriculture, crops, farms, and food logistics', '🌾', 2),
-  ('Technology & Digital Solutions', 'technology', 'Cutting-edge technology and digital transformation services', '💻', 3),
-  ('Trade & Logistics', 'trade-logistics', 'Global trade and efficient logistics solutions', '🚢', 4),
-  ('Business Consulting & Investments', 'business-consulting', 'Strategic business consulting and investment opportunities', '💼', 5)
+  ('Fashion & Beauty', 'fashion-beauty', 'Premium fashion and beauty products including bags, clothing, and accessories', '', 1),
+  ('Agriculture & Food', 'agriculture-food', 'Sustainable agriculture, crops, farms, and food logistics', '', 2),
+  ('Technology & Digital Solutions', 'technology', 'Cutting-edge technology and digital transformation services', '', 3),
+  ('Trade & Logistics', 'trade-logistics', 'Global trade and efficient logistics solutions', '', 4),
+  ('Business Consulting & Investments', 'business-consulting', 'Strategic business consulting and investment opportunities', '', 5)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Function to update updated_at timestamp

@@ -2,15 +2,23 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Order } from "@/lib/supabase";
+import Link from "next/link";
+import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function OrdersPage() {
+  const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
 
   // Fetch orders from Supabase
   const fetchOrders = async () => {
     try {
+      setLoading(true);
+      setError(null);
       let query = supabase
         .from('orders')
         .select('*, order_items(*)')
@@ -20,12 +28,13 @@ export default function OrdersPage() {
         query = query.eq('status', filter);
       }
 
-      const { data, error } = await query;
+      const { data, error: fetchError } = await query;
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       setOrders(data || []);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+    } catch (err: any) {
+      console.error('Error fetching orders:', err);
+      setError(err.message || 'Failed to load orders. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -37,17 +46,26 @@ export default function OrdersPage() {
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
+      setUpdatingOrder(orderId);
+      setError(null);
+      setSuccess(null);
+
+      const { error: updateError } = await supabase
         .from('orders')
         .update({ status: newStatus })
         .eq('id', orderId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
       
+      setSuccess(`Order status updated to ${newStatus}`);
       await fetchOrders();
-    } catch (error: any) {
-      console.error('Error updating order:', error);
-      alert('Failed to update order status: ' + error.message);
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      console.error('Error updating order:', err);
+      setError(err.message || 'Failed to update order status. Please try again.');
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setUpdatingOrder(null);
     }
   };
 
@@ -65,14 +83,17 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="text-center py-8">Loading orders...</div>
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-2" />
+          <p className="text-gray-600 dark:text-gray-400">Loading orders...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Orders Management</h2>
         
         {/* Filter */}
@@ -89,6 +110,22 @@ export default function OrdersPage() {
           <option value="cancelled">Cancelled</option>
         </select>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {success && (
+        <div className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400">
+          <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          <p>{success}</p>
+        </div>
+      )}
 
       {/* Orders Table */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border dark:border-gray-700 overflow-hidden">
@@ -121,17 +158,23 @@ export default function OrdersPage() {
                   <td className="p-4">{order.order_items?.length || 0} items</td>
                   <td className="p-4 font-semibold">${parseFloat(order.total_amount).toFixed(2)}</td>
                   <td className="p-4">
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                      className={`px-2 py-1 text-xs rounded-lg font-medium ${getStatusColor(order.status)}`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={order.status}
+                        onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                        disabled={updatingOrder === order.id}
+                        className={`px-2 py-1 text-xs rounded-lg font-medium ${getStatusColor(order.status)} disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                      {updatingOrder === order.id && (
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                      )}
+                    </div>
                   </td>
                   <td className="p-4">
                     <span className={`px-2 py-1 text-xs rounded-lg font-medium ${
@@ -146,9 +189,12 @@ export default function OrdersPage() {
                     {new Date(order.created_at).toLocaleDateString()}
                   </td>
                   <td className="p-4 text-right">
-                    <button className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700">
+                    <Link
+                      href={`/orders/${order.id}`}
+                      className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 underline"
+                    >
                       View Details
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -156,7 +202,9 @@ export default function OrdersPage() {
               {orders.length === 0 && (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-gray-500 dark:text-gray-400">
-                    No orders found
+                    {filter !== 'all' 
+                      ? `No ${filter} orders found.`
+                      : 'No orders found. Start processing orders to see them here.'}
                   </td>
                 </tr>
               )}

@@ -1,18 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { ShoppingCart, CreditCard, MapPin, User, Mail, Phone, Lock } from 'lucide-react';
+import { ShoppingCart, CreditCard, MapPin, User, Mail, Phone, Lock, AlertCircle, Loader2 } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
+import { supabase } from '@/lib/supabase';
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { items: cartItems, clearCart, getTotalPrice, getTotalItems } = useCart();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (cartItems.length === 0 && step === 1) {
+      router.push('/products');
+    }
+  }, [cartItems, router, step]);
 
   // Form data
   const [shippingInfo, setShippingInfo] = useState({
@@ -34,19 +45,8 @@ export default function CheckoutPage() {
     saveCard: false,
   });
 
-  // Dummy cart items
-  const cartItems = [
-    {
-      id: 1,
-      name: 'Designer Leather Bag',
-      price: 299.99,
-      quantity: 1,
-      image: '/ProductsImg/fash1.jpg',
-    },
-  ];
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 15.00;
+  const subtotal = getTotalPrice();
+  const shipping = subtotal > 0 ? 15.00 : 0;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
@@ -83,6 +83,21 @@ export default function CheckoutPage() {
 
           {/* Page Title */}
           <h1 className="font-heading text-4xl font-normal text-rare-primary mb-8">Checkout</h1>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <p>{error}</p>
+            </div>
+          )}
+
+          {/* Empty Cart Warning */}
+          {cartItems.length === 0 && (
+            <div className="mb-6 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-center">
+              <p className="text-yellow-700 dark:text-yellow-400">Your cart is empty. <a href="/products" className="underline font-semibold">Continue shopping</a></p>
+            </div>
+          )}
 
           {/* Progress Steps */}
           <div className="mb-12">
@@ -333,8 +348,15 @@ export default function CheckoutPage() {
                       <Button type="button" variant="outline" size="lg" fullWidth onClick={() => setStep(1)}>
                         Back
                       </Button>
-                      <Button type="submit" variant="primary" size="lg" fullWidth disabled={loading}>
-                        {loading ? 'Processing...' : 'Complete Purchase'}
+                      <Button type="submit" variant="primary" size="lg" fullWidth disabled={loading || cartItems.length === 0}>
+                        {loading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Processing...
+                          </>
+                        ) : (
+                          'Complete Purchase'
+                        )}
                       </Button>
                     </div>
                   </form>

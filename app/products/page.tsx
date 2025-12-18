@@ -7,7 +7,8 @@ import { Hero } from '@/components/ui/Hero';
 import { Section } from '@/components/ui/Section';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Search, Filter, Loader2 } from 'lucide-react';
+import { Search, Filter, Loader2, CheckCircle2 } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 
 interface Product {
   id: string;
@@ -37,11 +38,13 @@ const categories = [
 ];
 
 export default function ProductsPage() {
+  const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [searchQuery, setSearchQuery] = useState('');
+  const [addedToCartId, setAddedToCartId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -186,8 +189,30 @@ export default function ProductsPage() {
                         )}
                       </div>
                       <div className="flex gap-2 pointer-events-auto">
-                        <Button variant="primary" size="sm" fullWidth onClick={() => console.log('Add to cart:', product.id)}>
-                          Add to Cart
+                        <Button 
+                          variant="primary" 
+                          size="sm" 
+                          fullWidth 
+                          onClick={() => {
+                            addItem({
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              image: product.images?.[0],
+                              slug: product.slug,
+                            });
+                            setAddedToCartId(product.id);
+                            setTimeout(() => setAddedToCartId(null), 2000);
+                          }}
+                        >
+                          {addedToCartId === product.id ? (
+                            <>
+                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                              Added!
+                            </>
+                          ) : (
+                            'Add to Cart'
+                          )}
                         </Button>
                         <Button variant="outline" size="sm" href={`/products/${product.slug}`}>
                           View

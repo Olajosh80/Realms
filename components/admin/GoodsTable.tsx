@@ -4,9 +4,11 @@ import React from "react";
 export default function GoodsTable({
   goods,
   onDelete,
+  isDeleting = false,
 }: {
   goods: any[];
   onDelete: (id: string) => void;
+  isDeleting?: boolean;
 }) {
   return (
     <div className="p-6 bg-white border rounded-2xl shadow-sm dark:bg-gray-900 dark:border-gray-700">
@@ -87,7 +89,8 @@ export default function GoodsTable({
                   <td className="p-2 text-right">
                     <button
                       onClick={() => onDelete(good.id)}
-                      className="px-3 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600"
+                      disabled={isDeleting}
+                      className="px-3 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Delete
                     </button>
