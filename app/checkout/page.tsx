@@ -7,7 +7,8 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { ShoppingCart, CreditCard, MapPin, User, Mail, Phone, Lock, AlertCircle, Loader2 } from 'lucide-react';
+import { MdShoppingCart, MdCreditCard, MdLocationOn, MdPerson, MdMail, MdPhone, MdLock, MdErrorOutline } from 'react-icons/md';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/lib/supabase';
 
@@ -24,6 +25,21 @@ export default function CheckoutPage() {
       router.push('/products');
     }
   }, [cartItems, router, step]);
+
+  // Require authentication before allowing checkout
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (!data?.user) {
+          router.push(`/signin?returnTo=${encodeURIComponent('/checkout')}`);
+        }
+      } catch (err) {
+        console.error('Auth check failed', err);
+        router.push(`/signin?returnTo=${encodeURIComponent('/checkout')}`);
+      }
+    })();
+  }, [router]);
 
   // Form data
   const [shippingInfo, setShippingInfo] = useState({
@@ -58,12 +74,49 @@ export default function CheckoutPage() {
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    try {
+      // Ensure user session and token
+      const sessionRes = await supabase.auth.getSession();
+      const accessToken = sessionRes.data?.session?.access_token;
+      if (!accessToken) {
+        setError('You must be signed in to complete the purchase.');
+        setLoading(false);
+        router.push(`/signin?returnTo=${encodeURIComponent('/checkout')}`);
+        return;
+      }
 
-    // Simulate payment processing
-    setTimeout(() => {
+      const payload = {
+        items: cartItems,
+        shipping: shippingInfo,
+        total,
+        payment: { masked: `**** **** **** ${paymentInfo.cardNumber.slice(-4)}` },
+      };
+
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data?.error || 'Failed to create order');
+        setLoading(false);
+        return;
+      }
+
+      // Success: clear cart and go to success page
+      clearCart();
       setLoading(false);
       router.push('/checkout/success');
-    }, 2000);
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.message || 'Payment failed');
+      setLoading(false);
+    }
   };
 
   return (
@@ -132,7 +185,7 @@ export default function CheckoutPage() {
               {step === 1 && (
                 <Card>
                   <div className="flex items-center gap-3 mb-6">
-                    <MapPin className="w-6 h-6 text-rare-primary" />
+                    <MdLocationOn className="w-6 h-6 text-rare-primary" />
                     <h2 className="font-heading text-2xl font-normal text-rare-primary">Shipping Information</h2>
                   </div>
 
@@ -140,7 +193,7 @@ export default function CheckoutPage() {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-rare-text mb-2">
-                          <User className="inline w-4 h-4 mr-1" />
+                          <MdPerson className="inline w-4 h-4 mr-1" />
                           Full Name *
                         </label>
                         <Input
@@ -154,7 +207,7 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-rare-text mb-2">
-                          <Mail className="inline w-4 h-4 mr-1" />
+                          <MdMail className="inline w-4 h-4 mr-1" />
                           Email *
                         </label>
                         <Input
@@ -170,7 +223,7 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-rare-text mb-2">
-                        <Phone className="inline w-4 h-4 mr-1" />
+                        <MdPhone className="inline w-4 h-4 mr-1" />
                         Phone Number *
                       </label>
                       <Input
@@ -310,7 +363,7 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-rare-text mb-2">
-                          <Lock className="inline w-4 h-4 mr-1" />
+                          <MdLock className="inline w-4 h-4 mr-1" />
                           CVV *
                         </label>
                         <Input
@@ -339,7 +392,7 @@ export default function CheckoutPage() {
 
                     <div className="bg-rare-accent/10 border border-rare-accent/20 rounded-lg p-4 mt-6">
                       <p className="text-sm text-rare-text flex items-center gap-2">
-                        <Lock className="w-4 h-4" />
+                            <MdLock className="w-4 h-4" />
                         Your payment information is encrypted and secure
                       </p>
                     </div>
@@ -351,7 +404,7 @@ export default function CheckoutPage() {
                       <Button type="submit" variant="primary" size="lg" fullWidth disabled={loading || cartItems.length === 0}>
                         {loading ? (
                           <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <AiOutlineLoading3Quarters className="h-4 w-4 animate-spin mr-2" />
                             Processing...
                           </>
                         ) : (

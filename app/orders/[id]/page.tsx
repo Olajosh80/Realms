@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Package, Truck, CheckCircle, MapPin, Calendar, Phone, Mail } from 'lucide-react';
+import { MdLocalShipping, MdLocalShipping as MdPackage, MdCheckCircle, MdLocationOn, MdEvent, MdPhone, MdMail } from 'react-icons/md';
 
 export default function OrderTrackingPage() {
   const params = useParams();

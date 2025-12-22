@@ -3,7 +3,9 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Order } from "@/lib/supabase";
 import Link from "next/link";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { MdErrorOutline, MdCheckCircle } from 'react-icons/md';
 
 export default function OrdersPage() {
   const router = useRouter();

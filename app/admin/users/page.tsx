@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { UserProfile } from "@/lib/supabase";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { MdErrorOutline, MdCheckCircle } from 'react-icons/md';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -99,7 +100,7 @@ export default function UsersPage() {
     return (
       <div className="p-6">
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-2" />
+          <AiOutlineLoading3Quarters className="h-8 w-8 animate-spin text-blue-600 mb-2" />
           <p className="text-gray-600 dark:text-gray-400">Loading users...</p>
         </div>
       </div>
@@ -122,7 +123,7 @@ export default function UsersPage() {
       {/* Error Message */}
       {error && (
         <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <MdErrorOutline className="h-5 w-5 flex-shrink-0" />
           <p>{error}</p>
         </div>
       )}
@@ -130,7 +131,7 @@ export default function UsersPage() {
       {/* Success Message */}
       {success && (
         <div className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400">
-          <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          <MdCheckCircle className="h-5 w-5 flex-shrink-0" />
           <p>{success}</p>
         </div>
       )}
@@ -158,8 +159,7 @@ export default function UsersPage() {
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="px-2 py-1 text-xs rounded-lg border dark:bg-gray-800 dark:border-gray-600"
                   >
-                    <option value="customer">Customer</option>
-                    <option value="manager">Manager</option>
+                    <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </select>
                 </td>
@@ -175,7 +175,7 @@ export default function UsersPage() {
                   >
                     {actionLoading === user.id ? (
                       <>
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <AiOutlineLoading3Quarters className="h-3 w-3 animate-spin" />
                         Deleting...
                       </>
                     ) : (

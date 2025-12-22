@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 // GET all orders (with optional user filter)
 export async function GET(request: NextRequest) {
@@ -37,11 +38,33 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { items, ...orderData } = body;
-    
+    // Validate Authorization header and resolve user
+    const authHeader = request.headers.get('authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized: missing token' }, { status: 401 });
+    }
+
+    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !userData?.user) {
+      return NextResponse.json({ error: 'Unauthorized: invalid token' }, { status: 401 });
+    }
+
+    // Attach the authenticated user's id to the order
+    const toInsert = { ...orderData, user_id: userData.user.id };
+
+    // Use a server-side service role client for writes so RLS policies can be enforced safely
+    const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ error: 'Server misconfiguration: missing service role key' }, { status: 500 });
+    }
+    const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY);
+
     // Create order
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
-      .insert([orderData])
+      .insert([toInsert])
       .select()
       .single();
 

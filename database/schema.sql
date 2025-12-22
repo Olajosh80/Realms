@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
 CREATE TABLE IF NOT EXISTS user_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name VARCHAR(255),
-  role VARCHAR(50) DEFAULT 'customer',
+  role VARCHAR(50) DEFAULT 'user',
   phone VARCHAR(50),
   address TEXT,
   avatar_url TEXT,
@@ -185,6 +185,28 @@ ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access
 CREATE POLICY "Public can view divisions" ON divisions FOR SELECT USING (true);
+-- Admin policies for divisions: only admins can insert/update/delete
+CREATE POLICY "Admins can insert divisions" ON divisions FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM user_profiles WHERE user_profiles.id = auth.uid() AND user_profiles.role = 'admin'
+  )
+);
+
+CREATE POLICY "Admins can update divisions" ON divisions FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM user_profiles WHERE user_profiles.id = auth.uid() AND user_profiles.role = 'admin'
+  )
+) WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM user_profiles WHERE user_profiles.id = auth.uid() AND user_profiles.role = 'admin'
+  )
+);
+
+CREATE POLICY "Admins can delete divisions" ON divisions FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM user_profiles WHERE user_profiles.id = auth.uid() AND user_profiles.role = 'admin'
+  )
+);
 CREATE POLICY "Public can view products" ON products FOR SELECT USING (true);
 CREATE POLICY "Public can view published blog posts" ON blog_posts FOR SELECT USING (published = true);
 

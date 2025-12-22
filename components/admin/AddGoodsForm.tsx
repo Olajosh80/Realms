@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { uploadImage } from "@/lib/storage";
-import { Loader2 } from "lucide-react";
+import { FaSpinner } from 'react-icons/fa';
 
 export default function AddGoodsForm({
   onAddGood,
@@ -224,7 +224,7 @@ export default function AddGoodsForm({
           />
           {uploading && (
             <div className="mt-2 flex items-center gap-2 text-sm text-blue-600">
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <FaSpinner className="h-4 w-4 animate-spin" />
               <span>Uploading image...</span>
             </div>
           )}

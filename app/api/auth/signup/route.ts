@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
           {
             id: authData.user.id,
             full_name: full_name || '',
-            role: 'customer',
+            role: 'user',
           },
         ]);
 

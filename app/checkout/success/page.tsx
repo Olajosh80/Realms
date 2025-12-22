@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { CheckCircle, Package, Mail, Download, ArrowRight } from 'lucide-react';
+import { MdCheckCircle, MdLocalShipping, MdMail, MdDownload, MdArrowForward } from 'react-icons/md';
 
 export default function CheckoutSuccessPage() {
   const [orderNumber] = useState(`ORD-${Date.now().toString().slice(-8)}`);
@@ -28,7 +28,7 @@ export default function CheckoutSuccessPage() {
           {/* Success Icon */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-6 animate-bounce">
-              <CheckCircle className="w-16 h-16 text-green-600" />
+              <MdCheckCircle className="w-16 h-16 text-green-600" />
             </div>
             <h1 className="font-heading text-4xl md:text-5xl font-normal text-rare-primary mb-4">
               Order Confirmed!
@@ -107,6 +107,7 @@ export default function CheckoutSuccessPage() {
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <Card className="text-center">
               <Mail className="w-12 h-12 text-rare-primary mx-auto mb-4" />
+                            <MdMail className="w-12 h-12 text-rare-primary mx-auto mb-4" />
               <h3 className="font-heading text-lg mb-2">Check Your Email</h3>
               <p className="text-sm text-rare-text-light">
                 Order confirmation sent to your email address
@@ -115,6 +116,7 @@ export default function CheckoutSuccessPage() {
             
             <Card className="text-center">
               <Package className="w-12 h-12 text-rare-primary mx-auto mb-4" />
+                            <MdLocalShipping className="w-12 h-12 text-rare-primary mx-auto mb-4" />
               <h3 className="font-heading text-lg mb-2">Track Your Order</h3>
               <p className="text-sm text-rare-text-light">
                 Shipping updates will be sent via email
@@ -123,6 +125,7 @@ export default function CheckoutSuccessPage() {
             
             <Card className="text-center">
               <Download className="w-12 h-12 text-rare-primary mx-auto mb-4" />
+                            <MdDownload className="w-12 h-12 text-rare-primary mx-auto mb-4" />
               <h3 className="font-heading text-lg mb-2">Download Invoice</h3>
               <p className="text-sm text-rare-text-light">
                 Access your receipt anytime from your account
@@ -157,6 +160,9 @@ export default function CheckoutSuccessPage() {
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <ArrowRight className="w-6 h-6 text-purple-600" />
+                                  <MdArrowForward className="w-6 h-6 text-purple-600" />
+                                  <MdLocalShipping className="w-6 h-6 text-blue-600" />
+                                  <MdCheckCircle className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <h4 className="font-medium text-rare-text mb-1">Shipped (3-5 days)</h4>

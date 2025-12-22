@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/storage";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { MdErrorOutline, MdCheckCircle } from 'react-icons/md';
 
 export default function BlogAdminPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -127,7 +128,7 @@ export default function BlogAdminPage() {
       {/* Error Message */}
       {error && (
         <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <MdErrorOutline className="h-5 w-5 flex-shrink-0" />
           <p>{error}</p>
         </div>
       )}
@@ -135,7 +136,7 @@ export default function BlogAdminPage() {
       {/* Success Message */}
       {success && (
         <div className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400">
-          <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          <MdCheckCircle className="h-5 w-5 flex-shrink-0" />
           <p>{success}</p>
         </div>
       )}

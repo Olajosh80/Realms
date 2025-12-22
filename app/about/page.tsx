@@ -3,31 +3,31 @@ import { Footer } from '@/components/layout/Footer';
 import { Hero } from '@/components/ui/Hero';
 import { Section } from '@/components/ui/Section';
 import { Card } from '@/components/ui/Card';
-import { Target, Eye, Heart, Users, Award, Globe } from 'lucide-react';
+import { FaBullseye, FaEye, FaHeart, FaUsers, FaAward, FaGlobe } from 'react-icons/fa';
 
 const values = [
   {
-    icon: Target,
+    icon: FaBullseye,
     title: 'Excellence',
     description: 'We strive for excellence in everything we do, setting the highest standards across all our divisions.',
   },
   {
-    icon: Heart,
+    icon: FaHeart,
     title: 'Integrity',
     description: 'We conduct business with honesty, transparency, and ethical practices at every level.',
   },
   {
-    icon: Users,
+    icon: FaUsers,
     title: 'Collaboration',
     description: 'We believe in the power of teamwork and partnerships to achieve extraordinary results.',
   },
   {
-    icon: Award,
+    icon: FaAward,
     title: 'Innovation',
     description: 'We embrace innovation and continuously seek new ways to improve and grow.',
   },
   {
-    icon: Globe,
+    icon: FaGlobe,
     title: 'Global Impact',
     description: 'We aim to make a positive impact on communities and industries worldwide.',
   },

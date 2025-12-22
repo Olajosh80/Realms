@@ -79,7 +79,7 @@ export interface NewsletterSubscriber {
 export interface UserProfile {
   id: string;
   full_name?: string;
-  role: 'admin' | 'customer' | 'manager';
+  role: 'admin' | 'user';
   phone?: string;
   address?: string;
   avatar_url?: string;

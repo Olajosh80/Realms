@@ -4,7 +4,8 @@ import AddGoodsForm from "@/components/admin/AddGoodsForm";
 import GoodsTable from "@/components/admin/GoodsTable";
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/lib/supabase";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { MdErrorOutline, MdCheckCircle } from 'react-icons/md';
 
 export default function GoodsPage() {
   const [goods, setGoods] = useState<any[]>([]);
@@ -131,7 +132,7 @@ export default function GoodsPage() {
       {/* Error Message */}
       {error && (
         <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <MdErrorOutline className="h-5 w-5 flex-shrink-0" />
           <p>{error}</p>
         </div>
       )}
@@ -139,14 +140,14 @@ export default function GoodsPage() {
       {/* Success Message */}
       {success && (
         <div className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400">
-          <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          <MdCheckCircle className="h-5 w-5 flex-shrink-0" />
           <p>{success}</p>
         </div>
       )}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-2" />
+          <AiOutlineLoading3Quarters className="h-8 w-8 animate-spin text-blue-600 mb-2" />
           <p className="text-gray-600 dark:text-gray-400">Loading products...</p>
         </div>
       ) : (

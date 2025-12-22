@@ -6,7 +6,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { ShoppingCart, Heart, Share2, Star } from 'lucide-react';
+import { MdShoppingCart, MdFavoriteBorder, MdShare, MdStar } from 'react-icons/md';
 
 // Dummy product data - will be replaced with Supabase data later
 const dummyProducts = [

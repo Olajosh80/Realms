@@ -52,7 +52,7 @@ export default function SignUpPage() {
           .insert([{
             id: data.user.id,
             full_name: form.name,
-            role: 'customer',
+            role: 'user',
           }]);
 
         if (profileError) {

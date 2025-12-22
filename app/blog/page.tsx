@@ -8,7 +8,8 @@ import { Section } from '@/components/ui/Section';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Calendar, User, Tag, Loader2 } from 'lucide-react';
+import { MdEvent, MdPerson, MdLocalOffer } from 'react-icons/md';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import type { BlogPost } from '@/lib/supabase';
 
 type NewsletterStatus = 'idle' | 'loading' | 'success' | 'error';

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -45,18 +46,50 @@ export default function SignInPage() {
 
       if (data.user) {
         // Get user profile to check role
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
           .select('role')
           .eq('id', data.user.id)
-          .single();
+          .maybeSingle();
+
+        // Debug logging
+        console.log('[Sign In] User ID:', data.user.id);
+        console.log('[Sign In] Profile:', profile);
+        console.log('[Sign In] Profile Error:', profileError);
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          // Log error if it's not just "not found"
+          console.error('[Sign In] Error fetching profile:', profileError);
+        }
+
+        // Get redirect URL from query params
+        const redirectUrl = searchParams.get('redirect') || searchParams.get('returnTo');
+        console.log('[Sign In] Redirect URL from params:', redirectUrl);
 
         // Redirect based on role
-        if (profile?.role === 'admin' || profile?.role === 'manager') {
-          router.push('/admin');
+        let targetUrl = '/';
+        
+        if (profile?.role === 'admin') {
+          console.log('[Sign In] Admin user detected, redirecting to admin panel');
+          // Admin users: redirect to admin panel or the redirect URL if it's an admin route
+          if (redirectUrl && redirectUrl.startsWith('/admin')) {
+            targetUrl = redirectUrl;
+          } else {
+            targetUrl = '/admin';
+          }
         } else {
-          router.push('/');
+          console.log('[Sign In] Regular user, role:', profile?.role || 'null');
+          // Regular users: use redirect URL if provided (and not admin route), otherwise go home
+          if (redirectUrl && !redirectUrl.startsWith('/admin')) {
+            targetUrl = redirectUrl;
+          } else {
+            targetUrl = '/';
+          }
         }
+        
+        console.log('[Sign In] Redirecting to:', targetUrl);
+        // Use window.location for reliable redirect after auth
+        window.location.href = targetUrl;
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during sign in');

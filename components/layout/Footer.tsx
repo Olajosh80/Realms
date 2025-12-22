@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
+import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
 
 const footerLinks = {
   company: [
@@ -24,10 +25,10 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { name: 'Facebook', icon: Facebook, href: '#' },
-  { name: 'Instagram', icon: Instagram, href: '#' },
-  { name: 'Twitter', icon: Twitter, href: '#' },
-  { name: 'LinkedIn', icon: Linkedin, href: '#' },
+  { name: 'Facebook', icon: FaFacebook, href: '#' },
+  { name: 'Instagram', icon: FaInstagram, href: '#' },
+  { name: 'Twitter', icon: FaTwitter, href: '#' },
+  { name: 'LinkedIn', icon: FaLinkedin, href: '#' },
 ];
 
 export const Footer: React.FC = () => {
@@ -100,17 +101,17 @@ export const Footer: React.FC = () => {
               <h4 className="font-heading text-sm uppercase tracking-wider mb-4">Contact Us</h4>
               <div className="space-y-3 text-sm text-white/80">
                 <div className="flex items-start gap-2">
-                  <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <FiMapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
                   <span>123 Business Avenue, Suite 100<br />New York, NY 10001</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-5 w-5 flex-shrink-0" />
+                  <FiPhone className="h-5 w-5 flex-shrink-0" />
                   <a href="tel:+1234567890" className="hover:text-white transition-colors">
                     +1 (234) 567-890
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 flex-shrink-0" />
+                  <FiMail className="h-5 w-5 flex-shrink-0" />
                   <a href="mailto:info@beyondrealms.com" className="hover:text-white transition-colors">
                     beyondrealmsltd@gmail.com
                   </a>

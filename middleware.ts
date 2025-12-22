@@ -58,6 +58,7 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
   // Protect admin routes
@@ -70,14 +71,21 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check user role from user_profiles
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
-    // Only allow admin or manager roles
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'manager')) {
+    // Log errors for debugging (remove in production)
+    if (profileError) {
+      console.error('[Middleware] Error fetching profile:', profileError);
+    }
+
+    // Only allow admin role
+    if (!profile || profile.role !== 'admin') {
+      // Log for debugging
+      console.log('[Middleware] Access denied - Profile:', profile, 'User ID:', user.id);
       // Redirect to home if not authorized
       return NextResponse.redirect(new URL('/', request.url));
     }
