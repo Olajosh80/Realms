@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { supabase } from '@/lib/supabase';
@@ -46,19 +45,25 @@ export default function SignUpPage() {
       }
 
       if (data.user) {
-        // Create user profile
+        // Use upsert to create/update profile
+        // This handles the case where the database trigger already created a profile
         const { error: profileError } = await supabase
           .from('user_profiles')
-          .insert([{
+          .upsert({
             id: data.user.id,
             full_name: form.name,
             role: 'user',
-          }]);
+          }, {
+            onConflict: 'id'
+          });
 
         if (profileError) {
-          console.error('Profile creation error:', profileError);
+          console.error('Profile creation/update error:', profileError);
+          setError('Account created but profile setup failed. Please try signing in.');
+          return;
         }
 
+        console.log('[Sign Up] Profile created/updated for user:', data.user.id);
         setSuccess(true);
         setTimeout(() => {
           router.push('/signin');
@@ -79,19 +84,6 @@ export default function SignUpPage() {
         <p className="text-gray-500 dark:text-gray-300 mb-6 text-sm">
           Enter your details to create your account!
         </p>
-
-        {/* Google Sign-Up */}
-        <button className="flex items-center w-full justify-center py-3 mb-6 border rounded-xl border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-          <FcGoogle className="w-5 h-5 mr-2" />
-          Sign up with Google
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center mb-6">
-          <hr className="flex-1 border-gray-300 dark:border-gray-700" />
-          <span className="mx-2 text-gray-400 text-sm">or</span>
-          <hr className="flex-1 border-gray-300 dark:border-gray-700" />
-        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -58,7 +58,7 @@ export default function OrdersPage() {
         .eq('id', orderId);
 
       if (updateError) throw updateError;
-      
+
       setSuccess(`Order status updated to ${newStatus}`);
       await fetchOrders();
       setTimeout(() => setSuccess(null), 3000);
@@ -86,7 +86,7 @@ export default function OrdersPage() {
     return (
       <div className="p-6">
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-2" />
+          <AiOutlineLoading3Quarters className="h-8 w-8 animate-spin text-blue-600 mb-2" />
           <p className="text-gray-600 dark:text-gray-400">Loading orders...</p>
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function OrdersPage() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Orders Management</h2>
-        
+
         {/* Filter */}
         <select
           value={filter}
@@ -116,7 +116,7 @@ export default function OrdersPage() {
       {/* Error Message */}
       {error && (
         <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <MdErrorOutline className="h-5 w-5 flex-shrink-0" />
           <p>{error}</p>
         </div>
       )}
@@ -124,7 +124,7 @@ export default function OrdersPage() {
       {/* Success Message */}
       {success && (
         <div className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400">
-          <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          <MdCheckCircle className="h-5 w-5 flex-shrink-0" />
           <p>{success}</p>
         </div>
       )}
@@ -148,8 +148,8 @@ export default function OrdersPage() {
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr 
-                  key={order.id} 
+                <tr
+                  key={order.id}
                   className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/30"
                 >
                   <td className="p-4 font-mono text-xs">
@@ -174,16 +174,15 @@ export default function OrdersPage() {
                         <option value="cancelled">Cancelled</option>
                       </select>
                       {updatingOrder === order.id && (
-                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                        <AiOutlineLoading3Quarters className="h-4 w-4 animate-spin text-blue-600" />
                       )}
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className={`px-2 py-1 text-xs rounded-lg font-medium ${
-                      order.payment_status === 'paid' 
-                        ? 'bg-green-100 text-green-700' 
+                    <span className={`px-2 py-1 text-xs rounded-lg font-medium ${order.payment_status === 'paid'
+                        ? 'bg-green-100 text-green-700'
                         : 'bg-yellow-100 text-yellow-700'
-                    }`}>
+                      }`}>
                       {order.payment_status}
                     </span>
                   </td>
@@ -204,7 +203,7 @@ export default function OrdersPage() {
               {orders.length === 0 && (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-gray-500 dark:text-gray-400">
-                    {filter !== 'all' 
+                    {filter !== 'all'
                       ? `No ${filter} orders found.`
                       : 'No orders found. Start processing orders to see them here.'}
                   </td>

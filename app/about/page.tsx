@@ -37,7 +37,7 @@ export default function AboutPage() {
   return (
     <>
       <Header />
-      
+
       <main>
         {/* Hero Section */}
         <Hero
@@ -46,7 +46,7 @@ export default function AboutPage() {
           description="Beyond Realms LTD is a multi-sector conglomerate committed to transcending boundaries and creating value across diverse industries."
           centered
         />
-        
+
         {/* Mission & Vision Section */}
         <Section background="gradient-beige" padding="lg" withTexture>
           <div className="container">
@@ -54,7 +54,7 @@ export default function AboutPage() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-3 bg-white rounded-full shadow-lg">
-                    <Target className="h-8 w-8 text-rare-primary" />
+                    <FaBullseye className="h-8 w-8 text-rare-primary" />
                   </div>
                   <h2 className="font-heading text-3xl md:text-4xl font-normal text-rare-primary">
                     Our Mission
@@ -70,7 +70,7 @@ export default function AboutPage() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-3 bg-white rounded-full shadow-lg">
-                    <Eye className="h-8 w-8 text-rare-primary" />
+                    <FaEye className="h-8 w-8 text-rare-primary" />
                   </div>
                   <h2 className="font-heading text-3xl md:text-4xl font-normal text-rare-primary">
                     Our Vision
@@ -95,26 +95,26 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-6 font-body text-base md:text-lg text-rare-text-light leading-relaxed">
                 <p>
-                  Beyond Realms LTD was founded with a bold vision: to create a conglomerate that transcends 
-                  traditional industry boundaries and builds realms of excellence across multiple sectors. 
-                  What started as a dream has evolved into a dynamic organization operating in fashion, 
+                  Beyond Realms LTD was founded with a bold vision: to create a conglomerate that transcends
+                  traditional industry boundaries and builds realms of excellence across multiple sectors.
+                  What started as a dream has evolved into a dynamic organization operating in fashion,
                   agriculture, technology, trade, and business consulting.
                 </p>
                 <p>
-                  Our journey has been marked by strategic growth, innovative thinking, and an unwavering 
-                  commitment to quality. We've built strong partnerships, invested in cutting-edge technology, 
+                  Our journey has been marked by strategic growth, innovative thinking, and an unwavering
+                  commitment to quality. We've built strong partnerships, invested in cutting-edge technology,
                   and assembled teams of talented professionals who share our vision for excellence.
                 </p>
                 <p>
-                  Today, Beyond Realms LTD stands as a testament to what's possible when passion meets purpose. 
-                  We continue to expand our reach, explore new opportunities, and create value for our 
+                  Today, Beyond Realms LTD stands as a testament to what's possible when passion meets purpose.
+                  We continue to expand our reach, explore new opportunities, and create value for our
                   stakeholders while staying true to our core values and mission.
                 </p>
               </div>
             </div>
           </div>
         </Section>
-        
+
         {/* Core Values Section */}
         <Section background="alt" padding="lg">
           <div className="container">
@@ -126,7 +126,7 @@ export default function AboutPage() {
                 The principles that guide everything we do
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {values.map((value, index) => {
                 const Icon = value.icon;
@@ -149,7 +149,7 @@ export default function AboutPage() {
             </div>
           </div>
         </Section>
-        
+
         {/* Team Section */}
         <Section background="default" padding="lg">
           <div className="container">
@@ -158,20 +158,20 @@ export default function AboutPage() {
                 Our Team
               </h2>
               <p className="font-body text-base md:text-lg text-rare-text-light leading-relaxed mb-8">
-                Behind Beyond Realms LTD is a team of dedicated professionals who bring expertise, 
-                passion, and innovation to every project. Our diverse team spans multiple disciplines 
+                Behind Beyond Realms LTD is a team of dedicated professionals who bring expertise,
+                passion, and innovation to every project. Our diverse team spans multiple disciplines
                 and geographies, united by a common goal: to build realms of excellence.
               </p>
               <p className="font-body text-base md:text-lg text-rare-text-light leading-relaxed">
-                From fashion designers to agricultural experts, technology innovators to logistics specialists, 
-                our team represents the best in their respective fields. Together, we're creating a future 
+                From fashion designers to agricultural experts, technology innovators to logistics specialists,
+                our team represents the best in their respective fields. Together, we're creating a future
                 where boundaries are transcended and possibilities are limitless.
               </p>
             </div>
           </div>
         </Section>
       </main>
-      
+
       <Footer />
     </>
   );

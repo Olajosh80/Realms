@@ -52,8 +52,9 @@ export default function AddGoodsForm({
       const result = await uploadImage(selectedFile, 'products');
       setForm({ ...form, image: result.url });
     } catch (err: any) {
-      console.error('Upload error:', err);
-      setUploadError(err.message || 'Failed to upload image');
+      console.error('[AddGoodsForm] Image upload error:', err);
+      const errorMessage = typeof err === 'object' ? (err.message || JSON.stringify(err)) : String(err);
+      setUploadError(errorMessage || 'Failed to upload image');
       setFile(null);
       setForm({ ...form, image: '' });
     } finally {

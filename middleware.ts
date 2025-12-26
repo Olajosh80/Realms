@@ -66,7 +66,7 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       // Redirect to sign in if not authenticated
       const redirectUrl = new URL('/signin', request.url);
-      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      redirectUrl.searchParams.set('returnTo', request.nextUrl.pathname);
       return NextResponse.redirect(redirectUrl);
     }
 
@@ -96,6 +96,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/admin',
     '/admin/:path*',
   ],
 };

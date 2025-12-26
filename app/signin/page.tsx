@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { supabase } from '@/lib/supabase';
@@ -62,13 +61,13 @@ export default function SignInPage() {
           console.error('[Sign In] Error fetching profile:', profileError);
         }
 
-        // Get redirect URL from query params
-        const redirectUrl = searchParams.get('redirect') || searchParams.get('returnTo');
+        // Get redirect URL from query params (standardized to 'returnTo')
+        const redirectUrl = searchParams.get('returnTo');
         console.log('[Sign In] Redirect URL from params:', redirectUrl);
 
         // Redirect based on role
         let targetUrl = '/';
-        
+
         if (profile?.role === 'admin') {
           console.log('[Sign In] Admin user detected, redirecting to admin panel');
           // Admin users: redirect to admin panel or the redirect URL if it's an admin route
@@ -86,7 +85,7 @@ export default function SignInPage() {
             targetUrl = '/';
           }
         }
-        
+
         console.log('[Sign In] Redirecting to:', targetUrl);
         // Use window.location for reliable redirect after auth
         window.location.href = targetUrl;
@@ -106,19 +105,6 @@ export default function SignInPage() {
         <p className="text-gray-500 dark:text-gray-300 mb-6 text-sm">
           Enter your email and password to sign in!
         </p>
-
-        {/* Google Sign-In */}
-        <button className="flex items-center w-full justify-center py-3 mb-6 border rounded-xl border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-          <FcGoogle className="w-5 h-5 mr-2" />
-          Sign in with Google
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center mb-6">
-          <hr className="flex-1 border-gray-300 dark:border-gray-700" />
-          <span className="mx-2 text-gray-400 text-sm">or</span>
-          <hr className="flex-1 border-gray-300 dark:border-gray-700" />
-        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -206,4 +192,3 @@ export default function SignInPage() {
     </div>
   );
 }
-    

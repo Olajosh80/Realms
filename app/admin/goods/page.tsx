@@ -77,20 +77,27 @@ export default function GoodsPage() {
         tags: Array.isArray(newGood.tags) ? newGood.tags : [],
       };
 
+      console.log('[Goods] Adding product with data:', productData);
+
       const { data, error: insertError } = await supabase
         .from('products')
         .insert([productData])
         .select()
         .single();
 
-      if (insertError) throw insertError;
-      
+      if (insertError) {
+        console.error('[Goods] Insert error detail:', insertError);
+        throw insertError;
+      }
+
       setSuccess('Product added successfully!');
       await fetchProducts();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      console.error('Error adding product:', err);
-      setError(err.message || 'Failed to add product. Please try again.');
+      console.error('[Goods] Catch block error:', err);
+      // Try to extract a useful message
+      const errorMessage = typeof err === 'object' ? (err.message || err.details || JSON.stringify(err)) : String(err);
+      setError(errorMessage || 'Failed to add product. Please try again.');
       setTimeout(() => setError(null), 5000);
     } finally {
       setActionLoading(false);
@@ -112,7 +119,7 @@ export default function GoodsPage() {
         .eq('id', id);
 
       if (deleteError) throw deleteError;
-      
+
       setSuccess('Product deleted successfully!');
       await fetchProducts();
       setTimeout(() => setSuccess(null), 3000);

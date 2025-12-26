@@ -40,7 +40,7 @@ export default function OrdersPage() {
         setLoading(false);
       }
     })();
-  }, [router]);
+  }, []); // Empty dependency array - only run once on mount
 
   const getStatusColor = (status: string) => {
     switch (status) {

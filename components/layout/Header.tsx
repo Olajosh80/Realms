@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FiMenu, FiX, FiSearch, FiShoppingCart, FiUser } from 'react-icons/fi';
 import { useCart } from '@/contexts/CartContext';
-import { CartDrawer } from '@/components/ui/CartDrawer';
 import { UserMenu } from '@/components/ui/UserMenu';
 import { supabase } from '@/lib/supabase';
 import { UserProfile } from '@/lib/supabase';
@@ -21,7 +20,6 @@ const navigation = [
 export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -45,7 +43,7 @@ export const Header: React.FC = () => {
         .select('*')
         .eq('id', userId)
         .maybeSingle();
-      
+
       if (error) {
         // Only log non-permission errors (RLS might prevent access)
         if (error.code !== 'PGRST301' && error.code !== '42501') {
@@ -90,11 +88,10 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 border-b transition-all duration-500 ${
-        isScrolled
-          ? 'bg-gradient-blue border-rare-border/30 shadow-md' // midnight blue
-          : 'bg-rare-background border-rare-border/20'
-      }`}
+      className={`sticky top-0 z-50 border-b transition-all duration-500 ${isScrolled
+        ? 'bg-gradient-blue border-rare-border/30 shadow-md' // midnight blue
+        : 'bg-rare-background border-rare-border/20'
+        }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-4 py-4 md:py-6">
@@ -119,11 +116,10 @@ export const Header: React.FC = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-xs font-body font-normal tracking-rare-nav uppercase transition-opacity ${
-                  isScrolled
-                    ? 'text-white hover:opacity-80'
-                    : 'text-rare-primary hover:opacity-70'
-                }`}
+                className={`text-xs font-body font-normal tracking-rare-nav uppercase transition-opacity ${isScrolled
+                  ? 'text-white hover:opacity-80'
+                  : 'text-rare-primary hover:opacity-70'
+                  }`}
               >
                 {item.name}
               </Link>
@@ -133,14 +129,13 @@ export const Header: React.FC = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="block">
-               <img
-                  src="/logo.png"
-                  alt="Beyond Realms Logo"
-                  className={`h-10 w-auto transition-transform duration-300 ${
-                isScrolled ? 'brightness-200' : ''
-                }`}
+              <img
+                src="/logo.png"
+                alt="Beyond Realms Logo"
+                className={`h-10 w-auto transition-transform duration-300 ${isScrolled ? 'brightness-200' : ''
+                  }`}
               />
-           </Link>
+            </Link>
           </div>
 
           {/* Desktop Navigation (Right) */}
@@ -149,11 +144,10 @@ export const Header: React.FC = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-xs font-body font-normal tracking-rare-nav uppercase transition-opacity ${
-                  isScrolled
-                    ? 'text-white hover:opacity-80'
-                    : 'text-rare-primary hover:opacity-70'
-                }`}
+                className={`text-xs font-body font-normal tracking-rare-nav uppercase transition-opacity ${isScrolled
+                  ? 'text-white hover:opacity-80'
+                  : 'text-rare-primary hover:opacity-70'
+                  }`}
               >
                 {item.name}
               </Link>
@@ -167,27 +161,25 @@ export const Header: React.FC = () => {
               aria-label="Search"
             >
               <FiSearch
-                className={`h-5 w-5 transition-colors ${
-                  isScrolled ? 'text-white' : 'text-rare-primary'
-                }`}
+                className={`h-5 w-5 transition-colors ${isScrolled ? 'text-white' : 'text-rare-primary'
+                  }`}
               />
             </button>
-            <button
-              onClick={() => setCartOpen(true)}
-              className="p-2 hover:bg-rare-primary-light rounded-lg transition-colors relative"
+            <Link
+              href="/cart"
+              className="p-2 hover:bg-rare-primary-light rounded-lg transition-colors relative block"
               aria-label="Shopping cart"
             >
               <FiShoppingCart
-                className={`h-5 w-5 transition-colors ${
-                  isScrolled ? 'text-white' : 'text-rare-primary'
-                }`}
+                className={`h-5 w-5 transition-colors ${isScrolled ? 'text-white' : 'text-rare-primary'
+                  }`}
               />
               {getTotalItems() > 0 && (
                 <span className="absolute -top-1 -right-1 bg-rare-accent text-rare-primary text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                   {getTotalItems()}
                 </span>
               )}
-            </button>
+            </Link>
 
             {/* User Auth Section */}
             {user ? (
@@ -202,26 +194,24 @@ export const Header: React.FC = () => {
                     <img
                       src={userProfile.avatar_url}
                       alt={userProfile.full_name || user.email || 'User'}
-                      className={`h-8 w-8 rounded-full object-cover border-2 ${
-                        isScrolled ? 'border-white' : 'border-rare-primary'
-                      }`}
+                      className={`h-8 w-8 rounded-full object-cover border-2 ${isScrolled ? 'border-white' : 'border-rare-primary'
+                        }`}
                     />
                   ) : (
                     <div
-                      className={`h-8 w-8 rounded-full flex items-center justify-center font-body font-semibold text-xs ${
-                        isScrolled
-                          ? 'bg-white text-rare-primary'
-                          : 'bg-rare-primary text-white'
-                      }`}
+                      className={`h-8 w-8 rounded-full flex items-center justify-center font-body font-semibold text-xs ${isScrolled
+                        ? 'bg-white text-rare-primary'
+                        : 'bg-rare-primary text-white'
+                        }`}
                     >
                       {userProfile?.full_name
                         ? userProfile.full_name
-                            .trim()
-                            .split(' ')
-                            .map((n) => n[0])
-                            .slice(0, 2)
-                            .join('')
-                            .toUpperCase()
+                          .trim()
+                          .split(' ')
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
                         : user?.email?.[0]?.toUpperCase() || 'U'}
                     </div>
                   )}
@@ -235,28 +225,15 @@ export const Header: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/signin"
-                  className={`px-4 py-2 rounded-lg text-xs font-body font-normal tracking-rare-nav uppercase transition-colors ${
-                    isScrolled
-                      ? 'text-white hover:bg-white/10 border border-white/30'
-                      : 'text-rare-primary hover:bg-rare-primary-light border border-rare-border'
+              <Link
+                href="/signin"
+                className={`px-4 py-2 rounded-lg text-xs font-body font-normal tracking-rare-nav uppercase transition-colors ${isScrolled
+                  ? 'bg-white text-rare-primary hover:bg-white/90'
+                  : 'bg-rare-primary text-white hover:bg-rare-secondary'
                   }`}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/signup"
-                  className={`px-4 py-2 rounded-lg text-xs font-body font-normal tracking-rare-nav uppercase transition-colors ${
-                    isScrolled
-                      ? 'bg-white text-rare-primary hover:bg-white/90'
-                      : 'bg-rare-primary text-white hover:bg-rare-secondary'
-                  }`}
-                >
-                  Sign Up
-                </Link>
-              </div>
+              >
+                Sign In
+              </Link>
             )}
           </div>
         </div>
@@ -270,49 +247,31 @@ export const Header: React.FC = () => {
                   key={item.name}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-sm font-body px-4 py-2 rounded-lg transition-colors ${
-                    isScrolled
-                      ? 'text-white hover:bg-white/10'
-                      : 'text-rare-primary hover:bg-rare-primary-light'
-                  }`}
+                  className={`text-sm font-body px-4 py-2 rounded-lg transition-colors ${isScrolled
+                    ? 'text-white hover:bg-white/10'
+                    : 'text-rare-primary hover:bg-rare-primary-light'
+                    }`}
                 >
                   {item.name}
                 </Link>
               ))}
               {/* Mobile Auth Links */}
               {!user && (
-                <>
-                  <Link
-                    href="/signin"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`text-sm font-body px-4 py-2 rounded-lg transition-colors border ${
-                      isScrolled
-                        ? 'text-white hover:bg-white/10 border-white/30'
-                        : 'text-rare-primary hover:bg-rare-primary-light border-rare-border'
+                <Link
+                  href="/signin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-sm font-body px-4 py-2 rounded-lg transition-colors ${isScrolled
+                    ? 'bg-white text-rare-primary hover:bg-white/90'
+                    : 'bg-rare-primary text-white hover:bg-rare-secondary'
                     }`}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/signup"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`text-sm font-body px-4 py-2 rounded-lg transition-colors ${
-                      isScrolled
-                        ? 'bg-white text-rare-primary hover:bg-white/90'
-                        : 'bg-rare-primary text-white hover:bg-rare-secondary'
-                    }`}
-                  >
-                    Sign Up
-                  </Link>
-                </>
+                >
+                  Sign In
+                </Link>
               )}
             </nav>
           </div>
         )}
       </div>
-
-      {/* Cart Drawer */}
-      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </header>
   );
 };

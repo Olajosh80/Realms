@@ -38,12 +38,12 @@ export default function ProfilePage() {
         setProfile(profileData);
       } catch (error) {
         console.error('Error fetching profile:', error);
-        router.push('/signin');
+        router.push('/signin?returnTo=/profile');
       } finally {
         setLoading(false);
       }
     })();
-  }, [router]);
+  }, []); // Empty dependency array - only run once on mount
 
   if (loading) {
     return (
@@ -87,12 +87,12 @@ export default function ProfilePage() {
                       <div className="w-32 h-32 rounded-full bg-rare-primary text-white flex items-center justify-center font-heading text-4xl font-normal mx-auto md:mx-0">
                         {profile?.full_name
                           ? profile.full_name
-                              .trim()
-                              .split(' ')
-                              .map((n) => n[0])
-                              .slice(0, 2)
-                              .join('')
-                              .toUpperCase()
+                            .trim()
+                            .split(' ')
+                            .map((n) => n[0])
+                            .slice(0, 2)
+                            .join('')
+                            .toUpperCase()
                           : user?.email?.[0]?.toUpperCase() || 'U'}
                       </div>
                     )}

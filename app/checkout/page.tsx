@@ -122,7 +122,7 @@ export default function CheckoutPage() {
   return (
     <>
       <Header />
-      
+
       <main className="min-h-screen bg-gradient-to-br from-rare-accent/5 to-white py-12">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Breadcrumb */}
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
           {/* Error Message */}
           {error && (
             <div className="mb-6 flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <MdErrorOutline className="h-5 w-5 flex-shrink-0" />
               <p>{error}</p>
             </div>
           )}
@@ -314,7 +314,7 @@ export default function CheckoutPage() {
               {step === 2 && (
                 <Card>
                   <div className="flex items-center gap-3 mb-6">
-                    <CreditCard className="w-6 h-6 text-rare-primary" />
+                    <MdCreditCard className="w-6 h-6 text-rare-primary" />
                     <h2 className="font-heading text-2xl font-normal text-rare-primary">Payment Information</h2>
                   </div>
 
@@ -392,7 +392,7 @@ export default function CheckoutPage() {
 
                     <div className="bg-rare-accent/10 border border-rare-accent/20 rounded-lg p-4 mt-6">
                       <p className="text-sm text-rare-text flex items-center gap-2">
-                            <MdLock className="w-4 h-4" />
+                        <MdLock className="w-4 h-4" />
                         Your payment information is encrypted and secure
                       </p>
                     </div>
@@ -421,7 +421,7 @@ export default function CheckoutPage() {
             <div className="lg:col-span-1">
               <Card className="sticky top-4">
                 <div className="flex items-center gap-3 mb-6">
-                  <ShoppingCart className="w-6 h-6 text-rare-primary" />
+                  <MdShoppingCart className="w-6 h-6 text-rare-primary" />
                   <h2 className="font-heading text-2xl font-normal text-rare-primary">Order Summary</h2>
                 </div>
 
