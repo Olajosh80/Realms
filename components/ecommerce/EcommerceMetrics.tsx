@@ -105,10 +105,10 @@ export const EcommerceMetrics = () => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
       {metrics.map((metric) => (
-          <div
-            key={metric.title}
-            className="relative overflow-hidden rounded-2xl p-5 shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-          >
+        <div
+          key={metric.title}
+          className="relative overflow-hidden rounded-2xl p-5 shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+        >
           {/* Icon */}
           <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${metric.color} mb-4`}>
             {metric.icon}

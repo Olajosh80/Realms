@@ -5,7 +5,7 @@ export default function AdminDashboard() {
     <div>
       <h2 className="text-3xl font-bold mb-6">Dashboard</h2>
       <p>Welcome to your admin portal.</p>
-              <EcommerceMetrics />
+      <EcommerceMetrics />
     </div>
   );
 }
